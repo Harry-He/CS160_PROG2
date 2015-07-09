@@ -1,6 +1,8 @@
 package com.example.com.cs160_pp2;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +61,22 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "Start camera intent");
                 final Intent intent2 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent2, REQUEST_IMAGE_CAPTURE);
+            }  else if (intent.getAction().equals(SendMessageMobile.BROADCAST)) {
+                /*
+                    THIS PART NOT WORKING BUT NOT A IMPORTANT PART
+                 */
+
+                Log.d(TAG, "received message to show error notification");
+                NotificationManager notificationManager = (NotificationManager)
+                        getSystemService(NOTIFICATION_SERVICE);
+                Notification.Builder notificationBuilder =
+                        new Notification.Builder(MainActivity.this)
+                                .setSmallIcon(R.drawable.ic_error_black_36dp)
+                                .setContentTitle("Connection Error")
+                                .setContentText("Cannot connect to watch")
+                                .setPriority(Notification.PRIORITY_MAX);
+                notificationManager.notify(1, notificationBuilder.build());
+                //delayCancelNotification(NOTIFY_DELAY_ERROR, NOTIFY_ID_ERROR);
             }
         }
     };
@@ -89,6 +107,7 @@ public class MainActivity extends Activity {
         });
         IntentFilter filter = new IntentFilter();
         filter.addAction(ListenerServiceMobile.BROADCAST);
+        filter.addAction(SendMessageMobile.BROADCAST);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
 

@@ -3,6 +3,7 @@ package com.example.com.cs160_pp2;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -17,7 +18,9 @@ public class SendMessageWear extends IntentService {
     private static final String TAG = "SendMessageWear";
     private static final String MESSAGE_PATH = "/message_wear_to_mobile";
     private static final String MESSAGE = "CS160_EXCITMENT_WEAR_TO_MOBILE";
+    public static final String BROADCAST = "SendMessageBroadcastWear";
     private GoogleApiClient mGoogleApiClient;
+
     public SendMessageWear() {
         super("SendMessageWear");
     }
@@ -70,17 +73,26 @@ public class SendMessageWear extends IntentService {
         } else {
             Log.d(TAG, "mobile connected");
         }
+        boolean isConnectionGood = false;
         for (Node node : nodes.getNodes()) {
             Log.d(TAG, "sending to one node");
             MessageApi.SendMessageResult result =
                     Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), MESSAGE_PATH,
                             message.getBytes()).await();
             if (result.getStatus().isSuccess()) {
+                isConnectionGood = true;
                 Log.d(TAG, "Message: {" + message + "} sent to: " + node.getDisplayName());
             } else {
                 // Log an error
                 Log.d(TAG, "ERROR: mobile connected, but failed to send Message");
             }
+        }
+
+        if (!isConnectionGood) {
+            Intent intent = new Intent(BROADCAST);
+            Log.d(TAG, "Send ConnectionError from wear to phone to MainActivityWear");
+            LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
+            bm.sendBroadcast(intent);
         }
     }
 }

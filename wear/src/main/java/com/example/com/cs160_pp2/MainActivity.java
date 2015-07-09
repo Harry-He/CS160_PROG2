@@ -27,8 +27,10 @@ public class MainActivity extends Activity {
     private static final double SENSOR_DELTA_TOLERATE = 100.0;
     private static final int NOTIFY_DELAY_EXCITED = 15000;
     private static final int NOTIFY_DELAY_TWITTER = 30000;
+    private static final int NOTIFY_DELAY_ERROR = 30000;
     private static final int NOTIY_ID_EXCITED = 1;
     private static final int NOTIFY_ID_TWITTER = 2;
+    private static final int NOTIFY_ID_ERROR = 3;
     private SensorManager mSensorManager;
     //private float mAccel; // acceleration apart from gravity
     private float mAccelCurrent; // current acceleration including gravity
@@ -57,6 +59,9 @@ public class MainActivity extends Activity {
                 String text = new String(textByte);
 
                 byte[] bitmapByte = new byte[dataByte.length - 4 - sizeOfText];
+                for (int i = 0; i < dataByte.length - 4 - sizeOfText; i++) {
+                    bitmapByte[i] = dataByte[4+sizeOfText+i];
+                }
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapByte, 0, bitmapByte.length);
 
 
@@ -72,6 +77,17 @@ public class MainActivity extends Activity {
                 notificationManager.notify(NOTIFY_ID_TWITTER, notificationBuilder.build());
 
                 delayCancelNotification(NOTIFY_DELAY_TWITTER, NOTIFY_ID_TWITTER);
+            } else if (intent.getAction().equals(SendMessageWear.BROADCAST)) {
+                Log.d(TAG, "received message to show error notification");
+                notificationManager.cancel(NOTIY_ID_EXCITED);
+                Notification.Builder notificationBuilder =
+                        new Notification.Builder(MainActivity.this)
+                                .setSmallIcon(R.drawable.ic_error_black_36dp)
+                                .setContentTitle("Connection Error")
+                                .setContentText("Cannot connect to phone")
+                                .setPriority(Notification.PRIORITY_MAX);
+                notificationManager.notify(NOTIFY_ID_ERROR, notificationBuilder.build());
+                delayCancelNotification(NOTIFY_DELAY_ERROR, NOTIFY_ID_ERROR);
             }
         }
     };
@@ -133,6 +149,7 @@ public class MainActivity extends Activity {
         Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
         IntentFilter filter = new IntentFilter();
         filter.addAction(ListenerServiceWear.BROADCAST);
+        filter.addAction(SendMessageWear.BROADCAST);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
         finish();

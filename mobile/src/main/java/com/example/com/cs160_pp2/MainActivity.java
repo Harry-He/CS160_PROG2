@@ -40,10 +40,12 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class MainActivity extends Activity {
 
+    // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
+
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
-    private static final String TWITTER_CONSUMER_KEY = "FRct9ViJeRED5nY3WTnOQbZUU";
-    private static final String TWITTER_CONSUMER_SECRET = "LK0M2rxwNMkQXaSd5OvEtBEeQL1JtgK1YFnl8euZpA4BDKa4Ml";
+    private static final String TWITTER_CONSUMER_KEY = "3rRvwpDgzP5nONzf4TEzMEM1p";
+    private static final String TWITTER_CONSUMER_SECRET = "3cIiSefpTIuUxxGYBqVYWHFsO4Rwwihynvom5XRMOERiH4AoaB";
     private static final String TWITTER_ACCESS_TOKEN = "3270142999-NK2v4LW8CckXBTaOPdg5JEU2DqEaXo37RKONPNL";
     private static final String TWITTER_ACCESS_TOKEN_SECRET = "kQvgA8k4NPow2X33hM8O9qcQntbEU4MtwVmKhzXySEbs7";
     private static final String TAG = "MainActivityMobile";
@@ -67,7 +69,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
-        Fabric.with(this, new TweetComposer());
+        Fabric.with(this, new TweetComposer(), new Twitter(authConfig));
         setContentView(R.layout.activity_main);
 
         loginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
@@ -81,6 +83,7 @@ public class MainActivity extends Activity {
             @Override
             public void failure(TwitterException exception) {
                 Log.d(TAG, "twitter fail");
+                exception.printStackTrace();
                 // Do something on failure
             }
         });
@@ -134,6 +137,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        // Very import line
+        loginButton.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Log.d(TAG, "hasExtras");

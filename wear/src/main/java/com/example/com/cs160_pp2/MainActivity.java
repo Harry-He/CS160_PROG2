@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
                         new Notification.Builder(MainActivity.this)
                                 .setSmallIcon(R.drawable.twitter128)
                                 .setContentTitle(text)
-                                .setContentText("IS EXCITED")
+                                .setContentText("IS ALSO EXCITED")
                                 .setPriority(Notification.PRIORITY_MAX)
                                 .setLargeIcon(bitmap);
                 notificationManager.notify(NOTIFY_ID_TWITTER, notificationBuilder.build());

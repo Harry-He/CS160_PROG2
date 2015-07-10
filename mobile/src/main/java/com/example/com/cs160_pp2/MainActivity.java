@@ -44,16 +44,16 @@ public class MainActivity extends Activity {
 
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
-    private static final String TWITTER_CONSUMER_KEY = "3rRvwpDgzP5nONzf4TEzMEM1p";
-    private static final String TWITTER_CONSUMER_SECRET = "3cIiSefpTIuUxxGYBqVYWHFsO4Rwwihynvom5XRMOERiH4AoaB";
+    public static final String TWITTER_CONSUMER_KEY = "3rRvwpDgzP5nONzf4TEzMEM1p";
+    public static final String TWITTER_CONSUMER_SECRET = "3cIiSefpTIuUxxGYBqVYWHFsO4Rwwihynvom5XRMOERiH4AoaB";
     private static final String TWITTER_ACCESS_TOKEN = "3270142999-NK2v4LW8CckXBTaOPdg5JEU2DqEaXo37RKONPNL";
     private static final String TWITTER_ACCESS_TOKEN_SECRET = "kQvgA8k4NPow2X33hM8O9qcQntbEU4MtwVmKhzXySEbs7";
     private static final String TAG = "MainActivityMobile";
     /* http://stackoverflow.com/questions/20594936/communication-between-activity-and-service */
     // handler for received data from service
-    private static final int REQUEST_TWITTER_COMPOSER = 100;
+    public static final int REQUEST_TWITTER_COMPOSER = 100;
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -96,6 +96,9 @@ public class MainActivity extends Activity {
             public void success(Result<TwitterSession> result) {
                 Log.d(TAG, "twitter success");
                 // Do something with result, which provides a TwitterSession for making API calls
+                Intent intent = new Intent(MainActivity.this, TimelineActivity.class);
+                intent.putExtra("username", result.data.getUserName());
+                MainActivity.this.startActivity(intent);
             }
 
             @Override

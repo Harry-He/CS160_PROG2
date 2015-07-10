@@ -34,4 +34,16 @@
         android:layout_below="@+id/imageView"
         android:layout_centerHorizontal="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="press the button to see your recent excitement"
+        android:id="@+id/textView2"
+        android:gravity="center"
+        android:textSize="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/twitter_login_button"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

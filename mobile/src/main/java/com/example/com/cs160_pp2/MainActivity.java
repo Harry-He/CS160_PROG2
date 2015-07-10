@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
     private static final String TWITTER_ACCESS_TOKEN = "3270142999-NK2v4LW8CckXBTaOPdg5JEU2DqEaXo37RKONPNL";
     private static final String TWITTER_ACCESS_TOKEN_SECRET = "kQvgA8k4NPow2X33hM8O9qcQntbEU4MtwVmKhzXySEbs7";
     private static final String TAG = "MainActivityMobile";
+    private String username;
     /* http://stackoverflow.com/questions/20594936/communication-between-activity-and-service */
     // handler for received data from service
     public static final int REQUEST_TWITTER_COMPOSER = 100;
@@ -97,6 +98,7 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "twitter success");
                 // Do something with result, which provides a TwitterSession for making API calls
                 Intent intent = new Intent(MainActivity.this, TimelineActivity.class);
+                username = result.data.getUserName();
                 intent.putExtra("username", result.data.getUserName());
                 MainActivity.this.startActivity(intent);
             }
@@ -114,10 +116,60 @@ public class MainActivity extends Activity {
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
 
+        Intent intent = new Intent(this, MicrophoneIntentService.class);
+        startService(intent);
         //searchTweet();
     }
 
+    //private static boolean isReady;
     public void composeTweet(Uri image) {
+        /*
+        isReady = false;
+        GoogleApiClient     mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle connectionHint) {
+                        isReady = true;
+                    }
+                    @Override
+                    public void onConnectionSuspended(int cause) {;
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult result) {
+                    }
+                })
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+        Location location = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        String text = "#cs160excited ";
+        if (location != null) {
+            Geocoder geo = new Geocoder(getApplicationContext());
+            List<Address> addresses = null;
+            try {
+                addresses = geo.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                ArrayList<String> addressFragments = new ArrayList<String>();
+
+                // Fetch the address lines using getAddressLine,
+                // join them, and send them to the thread.
+                for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                    addressFragments.add(address.getAddressLine(i));
+                }
+                for (String s : addressFragments) {
+                    text += " " + s;
+                }
+            }
+        }
+        */
         Intent intent = new TweetComposer.Builder(this)
                 .text("#cs160excited").image(image)
                 .createIntent();
@@ -171,6 +223,12 @@ public class MainActivity extends Activity {
             Log.d(TAG, "twitter compose done");
             // Send new twitter with $cs160excited to watch.
             searchTweet();
+            /*
+            if (username != null) {
+                Intent intent = new Intent(MainActivity.this, TimelineActivity.class);
+                intent.putExtra("username", username);
+                MainActivity.this.startActivity(intent);
+            }*/
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

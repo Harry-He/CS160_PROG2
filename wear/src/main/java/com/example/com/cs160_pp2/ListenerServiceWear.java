@@ -15,7 +15,9 @@ import com.google.android.gms.wearable.WearableListenerService;
 public class ListenerServiceWear extends WearableListenerService {
 
     public static final String BROADCAST = "ListenerServiceBroadcastWear";
+    public static final String AMPTITUDE_BROADCAST = "ListenerAmptitudeBroadcast";
     private static final String MESSAGE_PATH = "/message_mobile_to_wear";
+    private static final String AMPTITUDE_PATH = "amptitude_mobile_to_wear";
     private static final String TAG = "ListenerServiceWear";
 
     @Override
@@ -31,7 +33,16 @@ public class ListenerServiceWear extends WearableListenerService {
             intent.putExtra("data", messageEvent.getData());
             LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
             bm.sendBroadcast(intent);
-        } else {
+        } else if (messageEvent.getPath().equals(AMPTITUDE_PATH)) {
+            Log.d(TAG, "Wear receives the amptitude data");
+            Intent intent = new Intent(AMPTITUDE_BROADCAST);
+            byte[] dataByte = messageEvent.getData();
+            Log.d(TAG, Integer.toString(dataByte.length));
+            intent.putExtra("amptitude", messageEvent.getData());
+            LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
+            bm.sendBroadcast(intent);
+        }
+        else {
             super.onMessageReceived(messageEvent);
         }
     }

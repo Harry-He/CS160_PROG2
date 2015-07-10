@@ -29,6 +29,7 @@ public class SendMessageWear extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "service has run");
         if (intent != null) {
+            Log.d(TAG, "service has run run");
             googleApiInit();
             mGoogleApiClient.connect();
             sendMessage(MESSAGE);
@@ -95,4 +96,6 @@ public class SendMessageWear extends IntentService {
             bm.sendBroadcast(intent);
         }
     }
+
+
 }

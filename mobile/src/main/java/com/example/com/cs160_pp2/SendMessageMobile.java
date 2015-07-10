@@ -17,6 +17,7 @@ public class SendMessageMobile extends IntentService {
 
     private static final String TAG = "SendMessageMobile";
     private static final String MESSAGE_PATH = "/message_mobile_to_wear";
+    private static final String AMPTITUDE_PATH = "amptitude_mobile_to_wear";
     private static final String MESSAGE = "CS160_EXCITMENT_MOBILE_TO_WEAR";
     public static final String BROADCAST = "SendMessageBroadcastMobile";
     private GoogleApiClient mGoogleApiClient;
@@ -31,7 +32,12 @@ public class SendMessageMobile extends IntentService {
             mGoogleApiClient.connect();
             byte[] data = (byte[])intent.getExtras().get("data");
             Log.d(TAG, "Twitter text and images are sending from phone to wear");
-            sendMessage(data);
+            if (data != null)
+                sendMessage(MESSAGE_PATH, data);
+            else {
+                data = (byte[])intent.getExtras().get("amptitude");
+                sendMessage(AMPTITUDE_PATH, data);
+            }
         }
     }
 
@@ -64,7 +70,7 @@ public class SendMessageMobile extends IntentService {
     /*
     https://github.com/LarkspurCA/WearableMessage/blob/master/mobile/src/main/java/com/androidweardocs/wearablemessage/MessageActivity.java
  */
-    void sendMessage(byte[] message) {
+    void sendMessage(String messagePath, byte[] message) {
         Log.d(TAG, "message has started to send");
         NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.
                 getConnectedNodes(mGoogleApiClient).await();
@@ -78,10 +84,12 @@ public class SendMessageMobile extends IntentService {
         for (Node node : nodes.getNodes()) {
             Log.d(TAG, "sending to one node");
             MessageApi.SendMessageResult result =
-                    Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), MESSAGE_PATH,
+                    Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), messagePath,
                             message).await();
             if (result.getStatus().isSuccess()) {
                 isConnectionGood = true;
+                if (messagePath == AMPTITUDE_PATH)
+                    Log.d(TAG, "amptitude sent");
                 Log.d(TAG, "Message: {" + message + "} sent to: " + node.getDisplayName());
             } else {
                 // Log an error

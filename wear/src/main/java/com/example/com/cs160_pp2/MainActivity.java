@@ -25,10 +25,10 @@ public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivityWear";
     private static final double SENSOR_DELTA_TOLERATE = 100.0;
-    private static final int NOTIFY_DELAY_EXCITED = 15000;
-    private static final int NOTIFY_DELAY_TWITTER = 30000;
-    private static final int NOTIFY_DELAY_ERROR = 30000;
-    private static final int NOTIY_ID_EXCITED = 1;
+    private static final int NOTIFY_DELAY_EXCITED = 10000;
+    private static final int NOTIFY_DELAY_TWITTER = 10000;
+    private static final int NOTIFY_DELAY_ERROR = 10000;
+    private static final int NOTIFY_ID_EXCITED = 1;
     private static final int NOTIFY_ID_TWITTER = 2;
     private static final int NOTIFY_ID_ERROR = 3;
     private SensorManager mSensorManager;
@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(ListenerServiceWear.BROADCAST)) {
 
-                notificationManager.cancel(NOTIY_ID_EXCITED);
+                notificationManager.cancel(NOTIFY_ID_EXCITED);
                 Log.d(TAG, "Start tweet searching");
                 byte[] dataByte = (byte[])intent.getExtras().get("data");
                 Log.d(TAG, dataByte[0] + " " + dataByte[1] + " " + dataByte[2] + " " + dataByte[3]);
@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
                 delayCancelNotification(NOTIFY_DELAY_TWITTER, NOTIFY_ID_TWITTER);
             } else if (intent.getAction().equals(SendMessageWear.BROADCAST)) {
                 Log.d(TAG, "received message to show error notification");
-                notificationManager.cancel(NOTIY_ID_EXCITED);
+                notificationManager.cancel(NOTIFY_ID_EXCITED);
                 Notification.Builder notificationBuilder =
                         new Notification.Builder(MainActivity.this)
                                 .setSmallIcon(R.drawable.ic_error_black_36dp)
@@ -88,6 +88,14 @@ public class MainActivity extends Activity {
                                 .setPriority(Notification.PRIORITY_MAX);
                 notificationManager.notify(NOTIFY_ID_ERROR, notificationBuilder.build());
                 delayCancelNotification(NOTIFY_DELAY_ERROR, NOTIFY_ID_ERROR);
+            } else if (intent.getAction().equals(ListenerServiceWear.AMPTITUDE_BROADCAST)) {
+                Log.d(TAG, "received amptitude to error notification");
+                byte[] ampByte = (byte[])intent.getExtras().get("amptitude");
+                int amp= ((ampByte[0] & 0xFF) << 24) | ((ampByte[1] & 0xFF) << 16)
+                        | ((ampByte[2] & 0xFF) << 8) | (ampByte[3] & 0xFF);
+                Log.d(TAG, String.valueOf(amp));
+                excitingNotification();
+                delayCancelNotification(NOTIFY_DELAY_EXCITED, NOTIFY_ID_EXCITED);
             }
         }
     };
@@ -110,7 +118,7 @@ public class MainActivity extends Activity {
             if (sensorInitialized && delta > SENSOR_DELTA_TOLERATE) {
                 Log.d(TAG, "Sensor Changes" + x + " " + y + " " + z);
                 excitingNotification();
-                delayCancelNotification(NOTIFY_DELAY_EXCITED, NOTIY_ID_EXCITED);
+                delayCancelNotification(NOTIFY_DELAY_EXCITED, NOTIFY_ID_EXCITED);
             } else {
                 sensorInitialized = true;
             }
@@ -150,6 +158,7 @@ public class MainActivity extends Activity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ListenerServiceWear.BROADCAST);
         filter.addAction(SendMessageWear.BROADCAST);
+        filter.addAction(ListenerServiceWear.AMPTITUDE_BROADCAST);
         LocalBroadcastManager bm = LocalBroadcastManager.getInstance(this);
         bm.registerReceiver(mBroadcastReceiver, filter);
         finish();
@@ -158,9 +167,9 @@ public class MainActivity extends Activity {
     void excitingNotification() {
 
         Intent viewIntent = new Intent(this, SendMessageWear.class);
+        viewIntent.putExtra("send", "message");
         PendingIntent viewPendingIntent =
                 PendingIntent.getService(this, 0, viewIntent, 0);
-
         Notification.Builder notificationBuilder =
                 new Notification.Builder(this)
                         .setSmallIcon(R.drawable.ic_photo_camera_black_36dp)
@@ -171,7 +180,7 @@ public class MainActivity extends Activity {
                         .setPriority(Notification.PRIORITY_MAX)
                         .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                                 R.drawable.excited));
-        notificationManager.notify(NOTIY_ID_EXCITED, notificationBuilder.build());
+        notificationManager.notify(NOTIFY_ID_EXCITED, notificationBuilder.build());
     }
 
     @Override
